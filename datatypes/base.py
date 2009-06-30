@@ -12,6 +12,22 @@ Element = ElementTree.Element
 SubElement = ElementTree.SubElement
 
 
+def indent_tree(elem, level=0):
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            indent_tree(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
+
 class QuickBooksProperty(object):
     """
     Describes a property of a QuickBooksAggregate instance
@@ -147,4 +163,5 @@ class QuickBooksAggregate(object):
         pass
 
     def to_xml(self):
+        indent_tree(self.element)
         return ElementTree.tostring(self.element, 'utf-8')

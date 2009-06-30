@@ -9,18 +9,23 @@ import pycurl
 from pyqbms import ElementTree
 Element = ElementTree.Element
 SubElement = ElementTree.SubElement
+from pyqbms.datatypes.base import indent_tree
 
-QBMS_URL = "https://merchantaccount.ptc.quickbooks.com/j/AppGateway"
-QBMS_CERT_PATH = 'qbms.pem'
 
 
 try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
-class QBMSRequest(object):
+
+
+XML_VERSION = '1.0'
+
+
+class QuickBooksRequestBase(object):
+    xml_version = XML_VERSION
+
     def __init__(self, *args, **kwargs):
-        self.response_data_handle = StringIO.StringIO()
         self.init(*args, **kwargs)
         self.request_xml = self.build_request_xml()
 
@@ -31,20 +36,25 @@ class QBMSRequest(object):
         pass
 
     def build_element_tree(self):
-        qbxml = Element('QBXML')
-        return qbxml
+        raise Exception('Not Implemented')
 
     def build_headers(self):
         return [
-            'Content-type: application/x-qbmsxml',
-            'Content-length: ' + len(self.request_xml)
+            'Content-length: ' + len(self.request_xml),
         ]
+
+    def build_request_xml_headers(self):
+        return '<?xml version="%s"?>' % self.xml_version
 
     def build_request_xml(self):
         self.element = self.build_element_tree()
-        return ElementTree.tostring(self.element, 'utf-8')
+        indent_tree(self.element)
+        request_xml = ElementTree.tostring(self.element, 'utf-8')
+        request_xml = self.build_request_xml_headers() + '\n' + request_xml 
+        return request_xml
 
     def build_request(self):
+        self.response_data_handle = StringIO.StringIO()
         request = pycurl.Curl()
         request.setopt(pycurl.URL, self.url)
         request.setopt(pycurl.WRITEFUNCTION, self.response_data_handle.write)
@@ -52,10 +62,10 @@ class QBMSRequest(object):
         request.setopt(pycurl.HTTPHEADER, self.build_headers())
         request.setopt(pycurl.POST, 1);
         request.setopt(pycurl.POSTFIELDS, self.request_xml);
-        request.setopt(pycurl.SSLCERT, QBMS_CERT_PATH);
 
         return request
         
     def perform(self):
         self.request = self.build_request()
+
 
