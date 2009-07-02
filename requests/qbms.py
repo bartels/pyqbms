@@ -5,7 +5,7 @@ QuickBooks Merchant Services API Request Encapsulation
 @author: Alex Goodwin <alex@artistechmedia.com>
 @copyright: ArtisTech Media, LLC 2009
 """
-import pycurl
+import pycurl, logging
 from pyqbms.requests.base import QuickBooksRequestBase
 from pyqbms.datatypes.request import QuickBooksResponseAggregate, QuickBooksRequestAggregate
 from pyqbms.datatypes.signon import SignonAppCertRq, SignonAppCertRs, SignonTicketRq
@@ -63,19 +63,17 @@ class SignonAppCertRequest(QBMSRequest):
         
 
 class QBMSXMLMsgsRequest(QBMSRequest):
+    def init(self, signon_msg_el=None, *args, **kwargs):
+        self.signon_msg_el = signon_msg_el
+        return super(QBMSXMLMsgsRequest, self).init(*args, **kwargs)
+
     def build_element_tree(self):
         tree =  super(QBMSXMLMsgsRequest, self).build_element_tree()
-        self.signon_msgs_rq_el.append(self.signon_ticket_rq.element)
+        if self.signon_msg_el:
+            self.signon_msgs_rq_el.append(self.signon_msg_el)
         self.qbms_xml_msgs_rq_el = SubElement(self.qbmsxml_el, 'QBMSXMLMsgsRq')
         self.qbms_xml_msgs_rq_el.append(self.rq_aggregate.element)
         return tree
-
-    def init(self, session_ticket, *args, **kwargs):
-        self.signon_ticket_rq = SignonTicketRq(session_ticket=session_ticket,
-            language=kwargs.get('language', QBMS_LANGUAGE), 
-            app_id=kwargs.get('app_id', QBMS_APP_ID), 
-            app_ver=kwargs.get('app_ver', QBMS_APP_VERSION))
-        super(QBMSXMLMsgsRequest, self).init(*args, **kwargs)
 
 
 class CustomerCreditCardChargeRequest(QBMSXMLMsgsRequest):
@@ -83,4 +81,55 @@ class CustomerCreditCardChargeRequest(QBMSXMLMsgsRequest):
     rs_aggregate_type = CustomerCreditCardChargeRs
 
 
+class QBMSRequestorBase(object):
+    def __init__(self, app_id, app_ver, application_login, connection_ticket, 
+            session_ticket=None, language=QBMS_LANGUAGE):
+        self.app_id = app_id
+        self.app_ver = app_ver
+        self.application_login = application_login
+        self.connection_ticket = connection_ticket
+        self.session_ticket = session_ticket
+        self.language = language
 
+    def build_signon_msg_el(self):
+        raise Exception("Not Implemented")
+
+    def build_request(self, request_class, *args, **kwargs):
+        kwargs['signon_msg_el'] = self.build_signon_msg_el()
+        return request_class(*args, **kwargs)
+
+    def perform_request(self, request):
+        logging.debug("Sending Request:\n%s" % request.request_xml)
+        return request
+
+    def charge_credit_card(self, *args, **kwargs): 
+        request = self.build_request(CustomerCreditCardChargeRequest, *args, **kwargs)
+        return self.perform_request(request)
+
+
+class QBMSHostedRequestor(QBMSRequestorBase):
+    def __init__(self, session_ticket=None, *args, **kwargs):
+        self.session_ticket = None
+        super(QBMSHostedRequestor, self).__init__(*args, **kwargs)
+
+    def build_signon_msg_el(self):
+        if not self.session_ticket:
+            self.signon()
+
+        signon_ticket_rq = SignonTicketRq(session_ticket=self.session_ticket,
+            language=self.language, 
+            app_id=self.app_id, 
+            app_ver=self.app_ver)
+        return signon_ticket_rq.element
+
+    def signon(self):
+        logging.info('Performing Hosted Model Signon')
+        request = SignonAppCertRequest(
+            application_login = self.application_login,
+            connection_ticket = self.connection_ticket
+        )
+        return self.perform_request(request)
+
+    
+
+        
