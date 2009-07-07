@@ -105,7 +105,7 @@ class QuickBooksStrProperty(QuickBooksProperty):
 
 class QuickBooksIntProperty(QuickBooksStrProperty):
     def __get__(self, *args, **kwargs):
-        result = super(QuickBooksStrProperty, self).__get__(*args, **kwargs)
+        result = super(QuickBooksIntProperty, self).__get__(*args, **kwargs)
         if result is None:
             return result
         try:
@@ -140,7 +140,7 @@ class QuickBooksDateTimeProperty(QuickBooksStrProperty):
 class QuickBooksTimeStampProperty(QuickBooksIntProperty): pass
 class QuickBooksMonthProperty(QuickBooksIntProperty): pass
 class QuickBooksYearProperty(QuickBooksIntProperty): pass
-class QuickBooksEnumProperty(QuickBooksIntProperty): pass
+class QuickBooksEnumProperty(QuickBooksStrProperty): pass
 
 class QuickBooksDecimalProperty(QuickBooksStrProperty):
     def __get__(self, *args, **kwargs):
@@ -192,7 +192,7 @@ class QuickBooksAggregate(object):
             tag = self.default_tag
             if not tag:
                 tag = self.__class__.__name__
-        if not element:
+        if element is None:
             element = Element(tag)
         self.element = element
         self.init(*args, **kwargs)
@@ -201,6 +201,8 @@ class QuickBooksAggregate(object):
         for property in self.qb_property_list:
             if property.prop_name in kwargs:
                 setattr(self, property.prop_name, kwargs[property.prop_name])
+            elif property.min_occurences > 0:
+                setattr(self, property.prop_name, '')
 
     def __repr__(self):
         return self.to_xml()

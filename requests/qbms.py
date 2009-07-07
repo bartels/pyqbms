@@ -27,6 +27,10 @@ QBMS_TEST_MODE = True
 QBMS_APP_ID = ''
 QBMS_APP_VERSION = ''
 
+STATUS_SUCCESS = 0
+SEVERITY_ERROR = 'ERROR'
+SEVERITY_WARNING = 'WARNING'
+
 class QBMSException(Exception): pass
 
 class QBMSSignonException(QBMSException): pass
@@ -65,7 +69,15 @@ class QBMSRequest(QuickBooksRequestBase):
         super(QBMSRequest, self).parse_response()
         self.rs_aggregate_el = self.response_tree.find('.//%s' % self.rs_aggregate_type.__name__)
         self.response = self.rs_aggregate_type(element = self.rs_aggregate_el)
-        print self.response.to_xml() 
+        if self.response.status_code is not STATUS_SUCCESS:
+            if self.response.status_severity is SEVERITY_ERROR:
+                logging.error(self.response.status_message)
+                raise QBMSException(self.response.status_message)
+            elif self.response.status_severity is SEVERITY_WARNING:
+                logging.warning(self.response.status_message)
+        return self.response
+                    
+            
 
 
 class SignonAppCertRequest(QBMSRequest):
@@ -148,7 +160,7 @@ class QBMSRequestorBase(object):
     def do_request(self, request_class, *args, **kwargs):
         request = self.build_request(request_class, *args, **kwargs)
         self.perform_request(request)
-        return request
+        return request.response
 
     def charge_credit_card(self, *args, **kwargs): 
         return self.do_request(CustomerCreditCardChargeRequest, *args, **kwargs)
@@ -172,7 +184,6 @@ class QBMSDesktopRequestor(QBMSRequestorBase):
         return request.response
 
 
-
 class QBMSHostedRequestor(QBMSRequestorBase):
     def signon(self):
         logging.info('Performing Hosted Model Signon')
@@ -186,9 +197,6 @@ class QBMSHostedRequestor(QBMSRequestorBase):
             connection_ticket = self.connection_ticket
         )
         self.perform_request(request)
-        print 'Status code: %r' %  request.response.status_code
-        print 'Status severity: %r' %  request.response.status_severity
-        print 'Status message: %r' %  request.response.status_message
         return request
 
     def do_request(self, *args, **kwargs):
