@@ -50,5 +50,20 @@ class SignonAppCertRs(QuickBooksResponseAggregate):
     session_ticket      = SessionTicket()
     
 
+class SignonDesktopRq(QuickBooksRequestAggregate):
+    client_date_time    = ClientDateTime()
+    application_login   = ApplicationLogin()
+    connection_ticket   = ConnectionTicket()
+    language            = Language()
+    app_id              = AppID()
+    app_ver             = AppVer()
+    
+
+class SignonDesktopRs(QuickBooksResponseAggregate):
+    server_date_time    = ServerDateTime()
+    session_ticket      = SessionTicket()
+    language            = Language()
+    app_id              = AppID()
+    app_ver             = AppVer()
 
 

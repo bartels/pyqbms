@@ -37,43 +37,63 @@ class QuickBooksProperty(object):
 
     default_xpath = None
 
-    def __init__(self, xpath=None, occurs=(0,1)):
+    creation_counter = 0
+
+    def __init__(self, xpath=None, occurs=(0,1), attribute=False):
+        self.creation_counter = QuickBooksProperty.creation_counter
+        QuickBooksProperty.creation_counter += 1
+
         if occurs == 1:
             self.min_occurences = self.max_occurences = 1
         else:
             self.min_occurences = occurs[0] 
             self.max_occurences = occurs[1] 
 
+        self.is_attribute = attribute
         if not xpath:
             xpath = self.default_xpath
             if not xpath:
                 xpath = self.__class__.__name__
         self.xpath = xpath
 
+    def __cmp__(self, other):
+        return cmp(self.creation_counter, other.creation_counter)
+
     def __get__(self, obj, objtype=None):
         if not hasattr(obj, 'element'):
             return self
         
-        element = obj.element.find(self.xpath)
-        return element
+        if self.is_attribute:
+            result =  obj.element.attrib.get(self.xpath, None)
+            return result
+        else:
+            element = obj.element.find(self.xpath)
+            return element
 
     def __set__(self, obj, value):
-        element = obj.element.find(self.xpath)
-        if element is None:
-
-            element = SubElement(obj.element, self.xpath)
-        element.text = value
-        return element.text
+        if self.is_attribute:
+            obj.element.set(self.xpath, value)
+            return value
+        else:
+            element = obj.element.find(self.xpath)
+            if element is None:
+                element = SubElement(obj.element, self.xpath)
+            element.text = value
+            return element.text
 
 
 class QuickBooksStrProperty(QuickBooksProperty):
     def __get__(self, *args, **kwargs):
+        if self.is_attribute:
+            return super(QuickBooksStrProperty, self).__get__(*args, **kwargs)
         element = super(QuickBooksStrProperty, self).__get__(*args, **kwargs)
         if hasattr(element, 'text') and element.text:
             return element.text
         return None
 
     def __set__(self, obj, value):
+        if self.is_attribute:
+            return super(QuickBooksStrProperty, self).__set__(obj, value)
         if not hasattr(obj, 'element'):
             return self
         element = obj.element.find(self.xpath)
@@ -109,17 +129,18 @@ class QuickBooksBoolProperty(QuickBooksStrProperty):
         return None
     
 
-class QuickBooksDateTimeProperty(QuickBooksStrProperty):
-    pass
-class QuickBooksTimeStampProperty(QuickBooksIntProperty):
-    pass
-class QuickBooksMonthProperty(QuickBooksIntProperty):
-    pass
-class QuickBooksYearProperty(QuickBooksIntProperty):
-    pass
+class QuickBooksDateTimeProperty(QuickBooksStrProperty): 
+    datetime_format = "%Y-%m-%dT%H:%M:%S"
 
-class QuickBooksEnumProperty(QuickBooksIntProperty):
-    pass
+    def __set__(self, obj, value):
+        if hasattr(value, 'strftime'):
+            value = value.strftime(self.datetime_format)
+        return super(QuickBooksDateTimeProperty, self).__set__(obj, value)
+
+class QuickBooksTimeStampProperty(QuickBooksIntProperty): pass
+class QuickBooksMonthProperty(QuickBooksIntProperty): pass
+class QuickBooksYearProperty(QuickBooksIntProperty): pass
+class QuickBooksEnumProperty(QuickBooksIntProperty): pass
 
 class QuickBooksDecimalProperty(QuickBooksStrProperty):
     def __get__(self, *args, **kwargs):
@@ -136,10 +157,34 @@ class QuickBooksAmtProperty(QuickBooksDecimalProperty):
     pass
 
 
+class QuickBooksAggregateMeta(type):
+    def __new__(mcs, name, bases, attrs):
+        print 'attrs: %r' % attrs.__class__
+        super_new = super(QuickBooksAggregateMeta, mcs).__new__
+        new_class = super_new(mcs, name, bases, {})
+
+        setattr(new_class, 'qb_property_list', [])
+        
+        for obj_name, obj in attrs.items():
+            new_class.add_to_class(obj_name, obj)
+
+        new_class.qb_property_list.sort()
+
+        return new_class
+
+    def add_to_class(mcs, name, value):
+        if isinstance(value, QuickBooksProperty):
+            value.prop_name = name
+            mcs.qb_property_list.append(value)
+        setattr(mcs, name, value)
+
+
 class QuickBooksAggregate(object):
     """
     ORM Around an element in QuickBooks XML with one or more QuickBooksProperty definitions
     """
+    __metaclass__ = QuickBooksAggregateMeta
+
     default_tag = None
 
     def __init__(self, element=None, tag=None, *args, **kwargs):
@@ -152,9 +197,10 @@ class QuickBooksAggregate(object):
         self.element = element
         self.init(*args, **kwargs)
 
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
+
+        for property in self.qb_property_list:
+            if property.prop_name in kwargs:
+                setattr(self, property.prop_name, kwargs[property.prop_name])
 
     def __repr__(self):
         return self.to_xml()

@@ -5,7 +5,7 @@ QuickBooks API Request Encapsulation
 @author: Alex Goodwin <alex@artistechmedia.com>
 @copyright: ArtisTech Media, LLC 2009
 """
-import pycurl
+import pycurl, logging, traceback
 from pyqbms import ElementTree
 Element = ElementTree.Element
 SubElement = ElementTree.SubElement
@@ -26,6 +26,7 @@ class QuickBooksRequestBase(object):
     xml_version = XML_VERSION
 
     def __init__(self, *args, **kwargs):
+        self.url = kwargs.get('url', None)
         self.init(*args, **kwargs)
         self.request_xml = self.build_request_xml()
 
@@ -40,7 +41,7 @@ class QuickBooksRequestBase(object):
 
     def build_headers(self):
         return [
-            'Content-length: ' + len(self.request_xml),
+            'Content-length: %i' % len(self.request_xml),
         ]
 
     def build_request_xml_headers(self):
@@ -53,19 +54,37 @@ class QuickBooksRequestBase(object):
         request_xml = self.build_request_xml_headers() + '\n' + request_xml 
         return request_xml
 
-    def build_request(self):
+    def build_curl_rq(self):
         self.response_data_handle = StringIO.StringIO()
-        request = pycurl.Curl()
-        request.setopt(pycurl.URL, self.url)
-        request.setopt(pycurl.WRITEFUNCTION, self.response_data_handle.write)
-        request.setopt(pycurl.TIMEOUT, 500);
-        request.setopt(pycurl.HTTPHEADER, self.build_headers())
-        request.setopt(pycurl.POST, 1);
-        request.setopt(pycurl.POSTFIELDS, self.request_xml);
-
-        return request
+        curl_rq = pycurl.Curl()
+        curl_rq.setopt(pycurl.URL, self.url)
+        curl_rq.setopt(pycurl.WRITEFUNCTION, self.response_data_handle.write)
+        curl_rq.setopt(pycurl.TIMEOUT, 500);
+        curl_rq.setopt(pycurl.HTTPHEADER, self.build_headers())
+        curl_rq.setopt(pycurl.POST, 1);
+        curl_rq.setopt(pycurl.POSTFIELDS, self.request_xml);
+        return curl_rq
         
     def perform(self):
-        self.request = self.build_request()
+        logging.debug("Sending Request to: %s\n%s" % (self.url, self.request_xml))
+        self.curl_rq = self.build_curl_rq()
+        try:
+            self.curl_rq.perform()
+        finally:
+            self.curl_rq.close()
+            try:
+                if hasattr(self.response_data_handle, 'read'): 
+                    self.response_data = self.response_data_handle.getvalue()
+                    logging.debug(self.response_data)
+                    self.response_data_handle.close()
+            except:
+                logging.warning(traceback.format_exc())
+        return self.parse_response()
+
+    def parse_response(self):
+        self.response_tree = ElementTree.parse(StringIO.StringIO(self.response_data))
+        return self.response_tree
+
+
 
 
