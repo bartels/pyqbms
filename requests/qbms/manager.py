@@ -9,7 +9,6 @@ import logging, traceback, datetime
 from pyqbms.datatypes.signon import SignonTicketRq
 from pyqbms.requests.qbms.exceptions import QBMSException, QBMSSignonException
 from pyqbms.requests.qbms.signon import SignonAppCertRequest, SignonDesktopRequest
-from pyqbms.requests.qbms.credit_card import CustomerCreditCardChargeRequest
 
 QBMS_PTC_URL = "https://merchantaccount.ptc.quickbooks.com/j/AppGateway"
 QBMS_LIVE_URL = "https://merchantaccount.quickbooks.com/j/AppGateway"
@@ -66,8 +65,37 @@ class QBMSManagerBase(object):
         self.perform_request(request)
         return request.response
 
-    def charge_credit_card(self, *args, **kwargs): 
+    def credit_card_auth(self, *args, **kwargs):
+        from pyqbms.requests.qbms.credit_card import CustomerCreditCardAuthRequest
+        return self.do_request(CustomerCreditCardAuthRequest, *args, **kwargs)
+
+    def credit_card_voice_auth(self, *args, **kwargs):
+        from pyqbms.requests.qbms.credit_card import CustomerCreditCardVoiceAuthRequest
+        return self.do_request(CustomerCreditCardVoiceAuthRequest, *args, **kwargs)
+
+    def credit_card_capture(self, *args, **kwargs):
+        from pyqbms.requests.qbms.credit_card import CustomerCreditCardCaptureRequest
+        return self.do_request(CustomerCreditCardCaptureRequest, *args, **kwargs)
+
+    def credit_card_charge(self, *args, **kwargs): 
+        from pyqbms.requests.qbms.credit_card import CustomerCreditCardChargeRequest
         return self.do_request(CustomerCreditCardChargeRequest, *args, **kwargs)
+
+    def credit_card_refund(self, *args, **kwargs): 
+        from pyqbms.requests.qbms.credit_card import CustomerCreditCardRefundRequest
+        return self.do_request(CustomerCreditCardRefundRequest, *args, **kwargs)
+
+    def credit_card_txn_void(self, *args, **kwargs): 
+        from pyqbms.requests.qbms.credit_card import CustomerCreditCardTxnVoidRequest
+        return self.do_request(CustomerCreditCardTxnVoidRequest, *args, **kwargs)
+
+    def credit_card_txn_void_or_refund(self, *args, **kwargs): 
+        from pyqbms.requests.qbms.credit_card import CustomerCreditCardTxnVoidOrRefundRequest
+        return self.do_request(CustomerCreditCardTxnVoidOrRefundRequest, *args, **kwargs)
+
+    def debit_card_charge(self, *args, **kwargs): 
+        from pyqbms.requests.qbms.credit_card import CustomerDebitCardChargeRequest
+        return self.do_request(CustomerDebitCardChargeRequest, *args, **kwargs)
 
 
 class QBMSDesktopManager(QBMSManagerBase):
