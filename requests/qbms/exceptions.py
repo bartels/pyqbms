@@ -7,12 +7,58 @@ QuickBooks Merchant Services API Request Exceptions
 """
 
 
+class QBMSErrorType(type):
+    """Metaclass that maintains mapping of status code to exception classes"""
+    status_code_map = {}
+
+    def __new__(mcs, name, bases, attrs):
+        super_new = super(QBMSErrorType, mcs).__new__
+        new_class = super_new(mcs, name, bases, attrs)
+        if hasattr(new_class, 'status_code'):
+            mcs.status_code_map[new_class.status_code] = new_class
+        return new_class
+        
+    @classmethod
+    def from_rs(cls, response):
+        """Return an Exception of the appropriate type based on the status_code of a rs aggregate"""
+        message = None
+        status_code = None
+
+        if hasattr(response, 'status_message'):
+            message = response.status_message
+
+        if hasattr(response, 'status_code'):
+            status_code = response.status_code
+
+        exc_class = cls.status_code_map.get(status_code, Exception)
+        return exc_class(message)
+
+
 class QBMSException(Exception):
+    """Base Exception class for all errors returned by the QBMS API servers"""
+    __metaclass__ = QBMSErrorType
     status_code = None
 
-class QBMSGatewayException(QBMSException): pass
+class QBMSGatewayException(QBMSException): 
+    """Base Exception class for any QBMS gateway related errors"""
 
-class QBMSSignonException(QBMSException): pass
+class QBMSSignonException(QBMSException):
+    """Base Exception class for any errors that can be potentially fixed with a new signon"""
+
+class QBMSAuthenticationFailed(QBMSSignonException):
+    status_code = 2000
+
+class QBMSUnauthorizedException(QBMSException):
+    status_code = 2010
+
+class QBMSSessionAuthenticationRequired(QBMSSignonException):
+    status_code = 2020
+
+class QBMSUnsupportedSignonVersion(QBMSException):
+    status_code = 2030
+
+class QBMSInternalError(QBMSException):
+    status_code = 2040
 
 class QBMSGatewayCommunicationException(QBMSGatewayException):
     status_code = 10200
@@ -86,7 +132,7 @@ class QBMSSalesCapExceeded(QBMSException):
 class QBMSInvalidDataFormatException(QBMSDataValidationException):
     status_code = 10408
 
-class QBMSCardValidationException(QBMSException):
+class QBMSCardValidationException(QBMSDataValidationException):
     status_code = 10409
 
 class QBMSBatchIDMissingException(QBMSException):

@@ -159,7 +159,6 @@ class QuickBooksAmtProperty(QuickBooksDecimalProperty):
 
 class QuickBooksAggregateMeta(type):
     def __new__(mcs, name, bases, attrs):
-        print 'attrs: %r' % attrs.__class__
         super_new = super(QuickBooksAggregateMeta, mcs).__new__
         new_class = super_new(mcs, name, bases, {})
 
