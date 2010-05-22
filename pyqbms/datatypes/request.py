@@ -6,7 +6,7 @@ QuickBooks Request and Response Data Type Definitions
 @copyright: ArtisTech Media, LLC 2009
 """
 from pyqbms.datatypes.base import QuickBooksAggregate
-from datatypes.base import QuickBooksStrProperty, QuickBooksIntProperty
+from pyqbms.datatypes.base import QuickBooksStrProperty, QuickBooksIntProperty
 
 
 class StatusSeverity(QuickBooksStrProperty):
