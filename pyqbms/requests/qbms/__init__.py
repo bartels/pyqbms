@@ -14,7 +14,7 @@ from pyqbms import ElementTree
 Element = ElementTree.Element
 SubElement = ElementTree.SubElement
 
-QBMS_VERSION = '2.0'
+QBMS_VERSION = '4.1'
 STATUS_SUCCESS = 0
 
 SEVERITY_INFO = 'INFO'
