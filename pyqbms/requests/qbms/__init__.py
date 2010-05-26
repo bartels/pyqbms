@@ -6,7 +6,7 @@ QuickBooks Merchant Services API Request Encapsulation
 @copyright: ArtisTech Media, LLC 2009
 """
 import pycurl, logging, traceback, datetime
-from pyqbms.requests.base import QuickBooksRequestBase
+from pyqbms.requests.base import QuickBooksRequestBase, QuickBooksRequestError
 from pyqbms.requests.qbms.exceptions import QBMSException, QBMSSignonException, QBMSErrorType
 from pyqbms.datatypes.request import QuickBooksResponseAggregate, QuickBooksRequestAggregate
 from pyqbms.datatypes.signon import SignonTicketRs, SignonAppCertRs, SignonDesktopRs

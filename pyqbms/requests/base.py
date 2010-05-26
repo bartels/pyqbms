@@ -22,6 +22,9 @@ except ImportError:
 XML_VERSION = '1.0'
 
 
+class QuickBooksRequestError(Exception):
+    pass
+
 class QuickBooksRequestBase(object):
     xml_version = XML_VERSION
 
@@ -70,6 +73,8 @@ class QuickBooksRequestBase(object):
         self.curl_rq = self.build_curl_rq()
         try:
             self.curl_rq.perform()
+        except pycurl.error:
+            raise QuickBooksRequestError, "Could not connect to host"
         finally:
             self.curl_rq.close()
             try:
@@ -84,7 +89,4 @@ class QuickBooksRequestBase(object):
     def parse_response(self):
         self.response_tree = ElementTree.parse(StringIO.StringIO(self.response_data))
         return self.response_tree
-
-
-
 
