@@ -10,3 +10,6 @@ try:
     from xml.etree import ElementTree
 except ImportError:
     import ElementTree
+
+
+VERSION = (0, 2, 0)
