@@ -73,7 +73,7 @@ class QBMSRequest(QuickBooksRequestBase):
         """Locate and parse the signon response aggregate"""
         for aggregate_type in self.signon_rs_aggregate_types:
             self.signon_rs_aggregate_el = self.response_tree.find('.//%s' % aggregate_type.__name__)
-            if self.signon_rs_aggregate_el:
+            if self.signon_rs_aggregate_el is not None:
                 self.signon_response = aggregate_type(element = self.signon_rs_aggregate_el)
                 if self.signon_response.status_code != STATUS_SUCCESS:
                     if self.signon_response.status_severity == SEVERITY_ERROR:
@@ -109,7 +109,7 @@ class QBMSXMLMsgsRequest(QBMSRequest):
     def build_element_tree(self):
         """Build an ElementTree representation of the request to send"""
         tree =  super(QBMSXMLMsgsRequest, self).build_element_tree()
-        if self.signon_msg_el:
+        if self.signon_msg_el is not None:
             self.signon_msgs_rq_el.append(self.signon_msg_el)
         self.qbms_xml_msgs_rq_el = SubElement(self.qbmsxml_el, 'QBMSXMLMsgsRq')
         self.qbms_xml_msgs_rq_el.append(self.rq_aggregate.element)
