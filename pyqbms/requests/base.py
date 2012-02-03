@@ -12,6 +12,8 @@ SubElement = ElementTree.SubElement
 from pyqbms.datatypes.base import indent_tree
 
 
+log = logging.getLogger(__name__)
+
 
 try:
     import cStringIO as StringIO
@@ -69,7 +71,7 @@ class QuickBooksRequestBase(object):
         return curl_rq
         
     def perform(self):
-        logging.debug("Sending Request to: %s\n%s" % (self.url, self.request_xml))
+        log.debug("Sending Request to: %s\n%s" % (self.url, self.request_xml))
         self.curl_rq = self.build_curl_rq()
         try:
             self.curl_rq.perform()
@@ -80,10 +82,10 @@ class QuickBooksRequestBase(object):
             try:
                 if hasattr(self.response_data_handle, 'read'): 
                     self.response_data = self.response_data_handle.getvalue()
-                    logging.debug(self.response_data)
+                    log.debug(self.response_data)
                     self.response_data_handle.close()
             except:
-                logging.warning(traceback.format_exc())
+                log.warning(traceback.format_exc())
         return self.parse_response()
 
     def parse_response(self):

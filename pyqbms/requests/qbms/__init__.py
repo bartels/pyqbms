@@ -22,6 +22,8 @@ SEVERITY_ERROR = 'ERROR'
 SEVERITY_WARNING = 'WARNING'
 
 
+log = logging.getLogger(__name__)
+
 
 class QBMSRequest(QuickBooksRequestBase):
     """
@@ -79,7 +81,7 @@ class QBMSRequest(QuickBooksRequestBase):
                     if self.signon_response.status_severity == SEVERITY_ERROR:
                         raise QBMSErrorType.from_rs(self.signon_response)
                     elif self.signon_response.status_severity == SEVERITY_WARNING:
-                        logging.warning(self.signon_response.status_message)
+                        log.warning(self.signon_response.status_message)
                 break
         return self.signon_response
     
@@ -91,10 +93,10 @@ class QBMSRequest(QuickBooksRequestBase):
         self.response = self.rs_aggregate_type(element = self.rs_aggregate_el)
         if self.response.status_code != STATUS_SUCCESS:
             if self.response.status_severity == SEVERITY_ERROR:
-                logging.error(self.response.status_message)
+                log.error(self.response.status_message)
                 raise QBMSErrorType.from_rs(self.response)
             elif self.response.status_severity == SEVERITY_WARNING:
-                logging.warning(self.response.status_message)
+                log.warning(self.response.status_message)
         return self.response
                     
             

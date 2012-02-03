@@ -11,6 +11,8 @@ from pyqbms import ElementTree
 Element = ElementTree.Element
 SubElement = ElementTree.SubElement
 
+log = logging.getLogger(__name__)
+
 
 def indent_tree(elem, level=0):
     i = "\n" + level*"  "
@@ -111,7 +113,7 @@ class QuickBooksIntProperty(QuickBooksStrProperty):
         try:
             return int(result)
         except:
-            logging.warning(traceback.format_exc())
+            log.warning(traceback.format_exc())
         return result
 
 
@@ -150,7 +152,7 @@ class QuickBooksDecimalProperty(QuickBooksStrProperty):
         try:
             return Decimal(result)
         except:
-            logging.warning(traceback.format_exc())
+            log.warning(traceback.format_exc())
         return result
 
 class QuickBooksAmtProperty(QuickBooksDecimalProperty):

@@ -21,6 +21,8 @@ QBMS_APP_ID = ''
 QBMS_APP_VERSION = ''
 
 
+log = logging.getLogger(__name__)
+
 
 class QBMSManagerBase(object):
     """
@@ -129,7 +131,7 @@ class QBMSDesktopManager(QBMSManagerBase):
         """
         Request a session ticket from the QBMS API using SignonDesktopRq
         """
-        logging.info('Performing Desktop Signon')
+        log.info('Performing Desktop Signon')
         request = SignonDesktopRequest(
             url = self.qbms_url,
             client_date_time=datetime.datetime.today(),
@@ -141,14 +143,14 @@ class QBMSDesktopManager(QBMSManagerBase):
         )
         self.perform_request(request)
         self.session_ticket = request.response.session_ticket
-        logging.info('Successful Desktop Signon')
+        log.info('Successful Desktop Signon')
         return request.response
 
     def do_request(self, *args, **kwargs):
         try:
             return super(QBMSDesktopManager, self).do_request(*args, **kwargs)
         except QBMSSignonException, e:
-            logging.warning("Signon Error: '%s', reauthenticating..." % e)
+            log.warning("Signon Error: '%s', reauthenticating..." % e)
             self.session_ticket = None
             self.signon()
             return super(QBMSDesktopManager, self).do_request(*args, **kwargs)
@@ -159,7 +161,7 @@ class QBMSHostedManager(QBMSManagerBase):
         """
         Request a session ticket from the QBMS API using SignonAppCertRequest
         """
-        logging.info('Performing Hosted Model Signon')
+        log.info('Performing Hosted Model Signon')
         request = SignonAppCertRequest(
             url = self.qbms_url,
             client_date_time=datetime.datetime.today(),
@@ -176,7 +178,7 @@ class QBMSHostedManager(QBMSManagerBase):
         try:
             return super(QBMSHostedManager, self).do_request(*args, **kwargs)
         except QBMSSignonException, e:
-            logging.warning(traceback.format_exc())
+            log.warning(traceback.format_exc())
             self.session_ticket = None
             self.signon()
             return super(QBMSHostedManager, self).do_request(*args, **kwargs)
