@@ -15,7 +15,7 @@ class ClientDateTime(QuickBooksDateTimeProperty): pass
 class ServerDateTime(QuickBooksDateTimeProperty): pass
 
 class SessionTicket(QuickBooksStrProperty): pass
-    
+
 class Language(QuickBooksStrProperty): pass
 
 class AppID(QuickBooksIntProperty): pass
@@ -48,7 +48,7 @@ class SignonAppCertRq(QuickBooksRequestAggregate):
 class SignonAppCertRs(QuickBooksResponseAggregate):
     server_date_time    = ServerDateTime()
     session_ticket      = SessionTicket()
-    
+
 
 class SignonDesktopRq(QuickBooksRequestAggregate):
     client_date_time    = ClientDateTime()
@@ -57,7 +57,7 @@ class SignonDesktopRq(QuickBooksRequestAggregate):
     language            = Language()
     app_id              = AppID()
     app_ver             = AppVer()
-    
+
 
 class SignonDesktopRs(QuickBooksResponseAggregate):
     server_date_time    = ServerDateTime()
@@ -65,5 +65,3 @@ class SignonDesktopRs(QuickBooksResponseAggregate):
     language            = Language()
     app_id              = AppID()
     app_ver             = AppVer()
-
-

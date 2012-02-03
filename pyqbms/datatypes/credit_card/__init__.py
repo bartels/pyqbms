@@ -40,7 +40,7 @@ class CustomerCreditCardAuthRs(QuickBooksResponseAggregate):
     avs_street                  = props.AVSStreet()
     avs_zip                     = props.AVSZip()
     card_security_code_match    = props.CardSecurityCodeMatch()
-    client_trans_id             = props.ClientTransID() 
+    client_trans_id             = props.ClientTransID()
 
 
 class CustomerCreditCardVoiceAuthRq(QuickBooksRequestAggregate):
@@ -90,7 +90,7 @@ class CustomerCreditCardCaptureRs(QuickBooksResponseAggregate):
     txn_authorization_time  = props.TxnAuthorizationTime()
     txn_authorization_stamp = props.TxnAuthorizationStamp()
     client_trans_id         = props.ClientTransID()
-    
+
 
 class CustomerCreditCardChargeRq(QuickBooksRequestAggregate):
     trans_request_id        = props.TransRequestID(occurs=1)
@@ -218,6 +218,3 @@ class CustomerDebitCardChargeRs(QuickBooksResponseAggregate):
     txn_authorization_time  = props.TxnAuthorizationTime()
     txn_authorization_stamp = props.TxnAuthorizationStamp()
     client_trans_id         = props.ClientTransID()
-
-
-

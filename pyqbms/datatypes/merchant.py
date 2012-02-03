@@ -23,10 +23,8 @@ class MerchantAccountQueryRs(QuickBooksAggregate):
 
 class MerchantBatchCloseRq(QuickBooksAggregate):
     trans_request_id    = TransRequestID(occurs=1)
-    batch_id            = BatchID() 
+    batch_id            = BatchID()
 
 
 class MerchantBatchCloseRs(QuickBooksAggregate):
     pass
-
-

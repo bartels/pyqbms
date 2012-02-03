@@ -47,5 +47,3 @@ class CustomerCreditCardTxnVoidOrRefundRequest(QBMSXMLMsgsRequest):
 class CustomerDebitCardChargeRequest(QBMSXMLMsgsRequest):
     rq_aggregate_type = CustomerDebitCardChargeRq
     rs_aggregate_type = CustomerDebitCardChargeRs
-
-

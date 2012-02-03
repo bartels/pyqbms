@@ -56,7 +56,7 @@ class QuickBooksRequestBase(object):
         self.element = self.build_element_tree()
         indent_tree(self.element)
         request_xml = ElementTree.tostring(self.element, 'utf-8')
-        request_xml = self.build_request_xml_headers() + '\n' + request_xml 
+        request_xml = self.build_request_xml_headers() + '\n' + request_xml
         return request_xml
 
     def build_curl_rq(self):
@@ -69,7 +69,7 @@ class QuickBooksRequestBase(object):
         curl_rq.setopt(pycurl.POST, 1);
         curl_rq.setopt(pycurl.POSTFIELDS, self.request_xml);
         return curl_rq
-        
+
     def perform(self):
         log.debug("Sending Request to: %s\n%s" % (self.url, self.request_xml))
         self.curl_rq = self.build_curl_rq()
@@ -80,7 +80,7 @@ class QuickBooksRequestBase(object):
         finally:
             self.curl_rq.close()
             try:
-                if hasattr(self.response_data_handle, 'read'): 
+                if hasattr(self.response_data_handle, 'read'):
                     self.response_data = self.response_data_handle.getvalue()
                     log.debug(self.response_data)
                     self.response_data_handle.close()
@@ -91,4 +91,3 @@ class QuickBooksRequestBase(object):
     def parse_response(self):
         self.response_tree = ElementTree.parse(StringIO.StringIO(self.response_data))
         return self.response_tree
-

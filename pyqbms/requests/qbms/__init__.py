@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 class QBMSRequest(QuickBooksRequestBase):
     """
     Encapsulation of request generation, sending, and parsing
-       
+
     A QBMSRequest instance is created for each request
     """
 
@@ -37,7 +37,7 @@ class QBMSRequest(QuickBooksRequestBase):
     rs_aggregate_type = QuickBooksResponseAggregate
 
     signon_rs_aggregate_types = [
-        SignonTicketRs, 
+        SignonTicketRs,
         SignonAppCertRs,
         SignonDesktopRs
     ]
@@ -53,7 +53,7 @@ class QBMSRequest(QuickBooksRequestBase):
         self.signon_msgs_rq_el = SubElement(self.qbmsxml_el, 'SignonMsgsRq')
         return self.qbmsxml_el
 
-    def build_request_xml_headers(self):    
+    def build_request_xml_headers(self):
         """Return a string containing headers not included in the ElementTree representation"""
         headers = super(QBMSRequest, self).build_request_xml_headers()
         return headers + '\n<?qbmsxml version="%s"?>' % self.qbms_version
@@ -84,7 +84,7 @@ class QBMSRequest(QuickBooksRequestBase):
                         log.warning(self.signon_response.status_message)
                 break
         return self.signon_response
-    
+
     def parse_response(self):
         """Locate and parse the response aggregate(s)"""
         super(QBMSRequest, self).parse_response()
@@ -98,8 +98,8 @@ class QBMSRequest(QuickBooksRequestBase):
             elif self.response.status_severity == SEVERITY_WARNING:
                 log.warning(self.response.status_message)
         return self.response
-                    
-            
+
+
 class QBMSXMLMsgsRequest(QBMSRequest):
     """
     QBMS Request containing a QBMSXMLMsgsRq element
@@ -116,6 +116,3 @@ class QBMSXMLMsgsRequest(QBMSRequest):
         self.qbms_xml_msgs_rq_el = SubElement(self.qbmsxml_el, 'QBMSXMLMsgsRq')
         self.qbms_xml_msgs_rq_el.append(self.rq_aggregate.element)
         return tree
-
-
-

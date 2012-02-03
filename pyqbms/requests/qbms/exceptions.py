@@ -17,7 +17,7 @@ class QBMSErrorType(type):
         if hasattr(new_class, 'status_code'):
             mcs.status_code_map[new_class.status_code] = new_class
         return new_class
-        
+
     @classmethod
     def from_rs(cls, response):
         """Return an Exception of the appropriate type based on the status_code of a rs aggregate"""
@@ -49,7 +49,7 @@ class QBMSException(Exception):
     message = property(_get_message, _set_message)
 
 
-class QBMSGatewayException(QBMSException): 
+class QBMSGatewayException(QBMSException):
     """Base Exception class for any QBMS gateway related errors"""
 
 class QBMSSignonException(QBMSException):
@@ -75,7 +75,7 @@ class QBMSGatewayCommunicationException(QBMSGatewayException):
 
 class QBMSGatewayLoginException(QBMSGatewayException):
     status_code = 10201
-    
+
 class QBMSAccountValidationException(QBMSException):
     status_code = 10202
 
@@ -153,5 +153,3 @@ class QBMSGeneralGatewayException(QBMSGatewayException):
 
 class QBMSGeneralSystemException(QBMSException):
     status_code = 10501
-
-

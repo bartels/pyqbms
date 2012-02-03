@@ -18,7 +18,7 @@ class SignonAppCertRequest(QBMSRequest):
         tree =  super(SignonAppCertRequest, self).build_element_tree()
         self.signon_msgs_rq_el.append(self.rq_aggregate.element)
         return tree
-        
+
 
 class SignonDesktopRequest(QBMSRequest):
     rq_aggregate_type = SignonDesktopRq
@@ -28,5 +28,3 @@ class SignonDesktopRequest(QBMSRequest):
         tree =  super(SignonDesktopRequest, self).build_element_tree()
         self.signon_msgs_rq_el.append(self.rq_aggregate.element)
         return tree
-        
-

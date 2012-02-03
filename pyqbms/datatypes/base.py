@@ -48,8 +48,8 @@ class QuickBooksProperty(object):
         if occurs == 1:
             self.min_occurences = self.max_occurences = 1
         else:
-            self.min_occurences = occurs[0] 
-            self.max_occurences = occurs[1] 
+            self.min_occurences = occurs[0]
+            self.max_occurences = occurs[1]
 
         self.is_attribute = attribute
         if not xpath:
@@ -64,7 +64,7 @@ class QuickBooksProperty(object):
     def __get__(self, obj, objtype=None):
         if not hasattr(obj, 'element'):
             return self
-        
+
         if self.is_attribute:
             result =  obj.element.attrib.get(self.xpath, None)
             return result
@@ -129,9 +129,9 @@ class QuickBooksBoolProperty(QuickBooksStrProperty):
             elif result.lower() in ('true', 'yes', 'pass'):
                 return True
         return None
-    
 
-class QuickBooksDateTimeProperty(QuickBooksStrProperty): 
+
+class QuickBooksDateTimeProperty(QuickBooksStrProperty):
     datetime_format = "%Y-%m-%dT%H:%M:%S"
 
     def __set__(self, obj, value):
@@ -165,7 +165,7 @@ class QuickBooksAggregateMeta(type):
         new_class = super_new(mcs, name, bases, {})
 
         setattr(new_class, 'qb_property_list', [])
-        
+
         for obj_name, obj in attrs.items():
             new_class.add_to_class(obj_name, obj)
 

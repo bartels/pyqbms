@@ -36,6 +36,5 @@ class QuickBooksResponseAggregate(QuickBooksAggregate):
     status_message = StatusMessage()
 
 
-class QuickBooksRequestAggregate(QuickBooksAggregate): pass
-
-
+class QuickBooksRequestAggregate(QuickBooksAggregate):
+    pass

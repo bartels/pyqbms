@@ -28,7 +28,7 @@ class QBMSManagerBase(object):
     """
     Abstract class definining overall QBMS api behavior
     """
-    def __init__(self, app_id, app_ver, application_login, connection_ticket, 
+    def __init__(self, app_id, app_ver, application_login, connection_ticket,
             session_ticket=None, language=QBMS_LANGUAGE, qbms_url=QBMS_LIVE_URL):
         self.app_id = app_id
         self.app_ver = app_ver
@@ -105,23 +105,23 @@ class QBMSManagerBase(object):
         from pyqbms.requests.qbms.credit_card import CustomerCreditCardCaptureRequest
         return self.do_request(CustomerCreditCardCaptureRequest, *args, **kwargs)
 
-    def credit_card_charge(self, *args, **kwargs): 
+    def credit_card_charge(self, *args, **kwargs):
         from pyqbms.requests.qbms.credit_card import CustomerCreditCardChargeRequest
         return self.do_request(CustomerCreditCardChargeRequest, *args, **kwargs)
 
-    def credit_card_refund(self, *args, **kwargs): 
+    def credit_card_refund(self, *args, **kwargs):
         from pyqbms.requests.qbms.credit_card import CustomerCreditCardRefundRequest
         return self.do_request(CustomerCreditCardRefundRequest, *args, **kwargs)
 
-    def credit_card_txn_void(self, *args, **kwargs): 
+    def credit_card_txn_void(self, *args, **kwargs):
         from pyqbms.requests.qbms.credit_card import CustomerCreditCardTxnVoidRequest
         return self.do_request(CustomerCreditCardTxnVoidRequest, *args, **kwargs)
 
-    def credit_card_txn_void_or_refund(self, *args, **kwargs): 
+    def credit_card_txn_void_or_refund(self, *args, **kwargs):
         from pyqbms.requests.qbms.credit_card import CustomerCreditCardTxnVoidOrRefundRequest
         return self.do_request(CustomerCreditCardTxnVoidOrRefundRequest, *args, **kwargs)
 
-    def debit_card_charge(self, *args, **kwargs): 
+    def debit_card_charge(self, *args, **kwargs):
         from pyqbms.requests.qbms.credit_card import CustomerDebitCardChargeRequest
         return self.do_request(CustomerDebitCardChargeRequest, *args, **kwargs)
 
@@ -154,7 +154,7 @@ class QBMSDesktopManager(QBMSManagerBase):
             self.session_ticket = None
             self.signon()
             return super(QBMSDesktopManager, self).do_request(*args, **kwargs)
-              
+
 
 class QBMSHostedManager(QBMSManagerBase):
     def signon(self):
@@ -182,9 +182,3 @@ class QBMSHostedManager(QBMSManagerBase):
             self.session_ticket = None
             self.signon()
             return super(QBMSHostedManager, self).do_request(*args, **kwargs)
-              
-
-    
-
-        
-

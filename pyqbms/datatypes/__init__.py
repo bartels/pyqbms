@@ -5,4 +5,3 @@ QuickBooks Data Type Definitions
 @author: Alex Goodwin <alex@artistechmedia.com>
 @copyright: ArtisTech Media, LLC 2009
 """
-
